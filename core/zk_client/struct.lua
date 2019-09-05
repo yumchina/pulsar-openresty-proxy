@@ -20,6 +20,8 @@
  * THE SOFTWARE.
 ]]
 
+local unpack =unpack
+
 local struct = {}
 
 function struct.pack(format, ...)

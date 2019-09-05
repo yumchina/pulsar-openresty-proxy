@@ -15,9 +15,10 @@ local DEBUG = ngx.DEBUG
 local http_client = require("core.utils.http_client")
 local log_config = require("core.utils.log_config")
 local json = require("core.utils.json")
-local zk = require("resty.zookeeper-client.zk_cluster")
+local zk = require("core.zk_client.zk_cluster")
 local string_util = require("core.utils.stringy")
 local singletons = require("core.framework.singletons")
+local plugin_config = require("plugins.zk_dynamic_upstream.config")
 
 
 
@@ -81,12 +82,12 @@ function _M.get_upstream_nodes_via_http_exporter(http_client_config)
 end
 
 
-
 function _M.get_upstream_nodes_via_tcp(zookeeper_config)
     local zc = zk:new(zookeeper_config)
-    local children, err = zc:get_children("/loadbalance/brokers",false)
+    local children, err = zc:get_children(plugin_config.upstream_zk_register_path)
     if not children  then
-        ngx_log(ERR,str_format(log_config.biz_error_format,log_config.ERROR, "can not get upstream nodes information.error:" .. err))
+        local error_msg =  "proxy can not discovery upstream nodes from zookeeper cluster, because:" .. err
+        ngx_log(ERR,str_format(log_config.sys_error_format,log_config.ERROR, error_msg))
     else
         local targets = {}
         local start_index = 1
