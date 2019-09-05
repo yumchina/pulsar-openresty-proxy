@@ -1,7 +1,4 @@
--- Author AlbertXiao
-
-
-local struct = require "resty.zookeeper-client.struct"
+local struct = require "core.zk_client.struct"
 
 local tcp = ngx.socket.tcp
 local pack = struct.pack
