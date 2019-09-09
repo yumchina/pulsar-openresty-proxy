@@ -1,6 +1,6 @@
 ---
---- Created by yusai.
---- DateTime: 2018/4/3 下午3:31
+--- Redis Operation client utils
+--- Created by Jacobs  Lei.
 ---
 local redis_client = require("utils.redis_client");
 

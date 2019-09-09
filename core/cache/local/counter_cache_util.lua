@@ -1,6 +1,5 @@
 ---
---- Created by yusai.
---- DateTime: 2019/1/7 3:29 PM
+--- Created by Jacobs Lei.
 ---
 
 local shared_name = require("core.constants.shard_name")

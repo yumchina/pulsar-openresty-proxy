@@ -1,7 +1,6 @@
 ---
---- 自定义response 头信息
---- Created by yusai.
---- DateTime: 2019/2/28 10:58 AM
+--- 自定义HTTP response 头信息
+--- Created by Jacobs  Lei.
 ---
 
 local _M={}

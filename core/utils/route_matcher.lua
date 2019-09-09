@@ -1,7 +1,6 @@
 ---
---- route_matcher
---- Created by yusai.
---- DateTime: 2018/11/8 下午1:56
+--- Route matcher
+--- Created by Jacobs Lei
 ---
 local str_sub = string.sub
 local str_find = string.find
@@ -11,8 +10,7 @@ local local_cache_prefix = require("core.cache.local.global_cache_prefix")
 local default_group_context = "-default-"
 local _M={}
 
--- 参数整形
--- 以非"/"开头,整形以"/"结尾
+-- 参数整形,以非"/"开头,整形以"/"结尾
 local function param_shaping(param)
     local len =str_len(param);
     if len >1 then
