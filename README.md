@@ -12,6 +12,6 @@ Pulsar-openresty-proxy is a kind Pulsar proxy depending openresty, discovery ups
 - profile:configuration profile file
 
 ## WIKI
-[如何使用pulsar openresty proxy](https://git.tp.hwwt2.com/opensources/pulsar-openresty-proxy-v2/wiki)
+[How to use pulsar openresty proxy](https://github.com/yumchina/pulsar-openresty-proxy/wiki)
 
 
