@@ -2,7 +2,7 @@
 
 ## What's pulsar-openresty-proxy
 
-Pulsar-openresty-proxy is a kind Pulsar proxy depending openresty, discovery upstream pulsar brokers from pulsar zookeeper server by balancer_by_lua.
+Pulsar-openresty-proxy is a kind of [Apache Pulsar](https://github.com/apache/pulsar) proxy depending openresty, discovery upstream pulsar brokers from pulsar zookeeper server by balancer_by_lua.
 
 ## Code structure
 - bin: OrProxy program's bin module,For start, stop, reload, restart command.
