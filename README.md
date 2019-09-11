@@ -11,7 +11,15 @@ Pulsar-openresty-proxy is a kind Pulsar proxy depending openresty, discovery ups
 - lib: depended OpenResty library
 - profile:configuration profile file
 
-## WIKI
+## Install && Usages && Config
 [How to use pulsar openresty proxy](https://github.com/yumchina/pulsar-openresty-proxy/wiki)
+
+## License
+[Apache](./LICENSE)
+
+
+## See also
+
+The plugin architecture is highly inspired by [Kong](https://github.com/Mashape/kong).
 
 
