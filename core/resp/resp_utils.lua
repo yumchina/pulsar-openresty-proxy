@@ -1,6 +1,6 @@
 ---
 --- OrProxy helper methods to send HTTP responses to clients.
---- Copyright (c) 2016 - 2018 www.mwee.cn & Jacobs Lei 
+--- Copyright (c) 2020  YumChina  & Jacobs Lei
 --- Author: Jacobs Lei
 --- Date: 2018/4/9
 --- Time: 下午7:18

@@ -42,7 +42,7 @@ install:
 	@echo "package.cpath=\"$(ORPROXY_HOME)/lualib/?.so;;\" .. package.cpath">> $(ORPROXY_BIN)
 	@echo "require(\"bin.main\")(arg)" >> $(ORPROXY_BIN)
 	@chmod +x $(ORPROXY_BIN)
-	@echo "Pulsar Openresty Proxy Server installed."
+	@echo "Pulsar Openresty Proxy Server has installed."
 	$(ORPROXY_BIN) help
 
 show:
