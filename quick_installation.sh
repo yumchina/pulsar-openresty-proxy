@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
 # Install dependencies
+source /etc/profile
+echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+id
+echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+echo $PATH
 echo ''
 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 echo 'Start to install dependencies'
@@ -20,12 +25,12 @@ yum-config-manager --add-repo https://openresty.org/package/rhel/openresty.repo
 # Install Openresty
 echo ''
 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-echo 'Start to install openresty'
+echo 'Start to install openresty 1.15.8.2'
 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 echo ''
-wget https://openresty.org/download/openresty-1.11.2.3.tar.gz
-tar -xzvf openresty-1.11.2.3.tar.gz
-cd openresty-1.11.2.3/
+wget https://openresty.org/download/openresty-1.15.8.2.tar.gz
+tar -xzvf openresty-1.15.8.2.tar.gz
+cd openresty-1.15.8.2/
 
 ./configure --prefix="/usr/local/openresty/" \
 --with-luajit \
@@ -83,3 +88,12 @@ echo 'Start to install orProxy'
 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 echo ''
 make install
+
+# echo PATH
+
+echo ''
+echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+echo 'Echo PATH'
+echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+echo ''
+echo $PATH
