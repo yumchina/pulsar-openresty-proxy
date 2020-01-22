@@ -117,8 +117,6 @@ http {
     #代码缓存 生产环境打开
     lua_code_cache ${{LUA_CODE_CACHE}};
 
->if service_type == "gateway_service" then
-
     upstream default_upstream {
         server 0.0.0.1;
         balancer_by_lua_block {
@@ -129,53 +127,21 @@ http {
         keepalive ${{UPSTREAM_KEEPALIVE}};
 >end
     }
->end
 
     init_by_lua_block {
         local app = require("core.main")
         local global_config_path = "${{conf_path}}"
-        local config = app.init(global_config_path)
+        local config,prometheus_metrics = app.init(global_config_path)
 
         --application context
         context = {
             app = app,
-            config = config
-        }
+            config = config,
+            prometheus_metrics = prometheus_metrics
 
-        prometheus = require("prometheus").init("prometheus_metrics")
-        local bucket =  {0.01, 0.05, 0.1, 0.5, 1, 5}
-        http_requests = prometheus:counter(
-            "nginx_http_requests", "Number of HTTP requests", {"host", "status"})
-        http_request_time = prometheus:histogram(
-            "nginx_http_request_time", "HTTP request time", {"host"}, bucket)
-        http_request_bytes_received = prometheus:counter(
-            "nginx_http_request_bytes_received", "Number of HTTP request bytes received", {"host"})
-        http_request_bytes_sent = prometheus:counter(
-            "nginx_http_request_bytes_sent", "Number of HTTP request bytes sent", {"host"})
-        http_connections = prometheus:gauge(
-            "nginx_http_connections", "Number of HTTP connections", {"state"})
-        http_upstream_cache_status = prometheus:counter(
-            "nginx_http_upstream_cache_status", "Number of HTTP upstream cache status", {"host", "status"})
-        http_upstream_requests = prometheus:counter(
-            "nginx_http_upstream_requests", "Number of HTTP upstream requests", {"addr", "status"})
-        http_upstream_response_time = prometheus:histogram(
-            "nginx_http_upstream_response_time", "HTTP upstream response time", {"host", "addr"}, bucket)
-        http_upstream_header_time = prometheus:histogram(
-            "nginx_http_upstream_header_time", "HTTP upstream header time", {"host", "addr"}, bucket)
-         http_upstream_bytes_received = prometheus:counter(
-            "nginx_http_upstream_bytes_received", "Number of HTTP upstream bytes received", {"addr"})
-        http_upstream_bytes_sent = prometheus:counter(
-            "nginx_http_upstream_bytes_sent", "Number of HTTP upstream bytes sent", {"addr"})
-        http_upstream_connect_time = prometheus:histogram(
-            "nginx_http_upstream_connect_time", "HTTP upstream connect time", {"host", "addr"}, bucket)
-        http_upstream_first_byte_time = prometheus:histogram(
-            "nginx_http_upstream_first_byte_time", "HTTP upstream first byte time", {"host", "addr"}, bucket)
-        http_upstream_session_time = prometheus:histogram(
-            "nginx_http_upstream_session_time", "HTTP upstream session time", {"host", "addr"}, bucket)
+        }
     }
 
-
->if service_type == "gateway_service" then
     init_worker_by_lua_block {
         local app = context.app
         app.initWorker()
@@ -215,13 +181,7 @@ http {
         #deny all;
         location /metrics {
             content_by_lua_block {
-                if ngx.var.connections_active ~= nil then
-                    http_connections:set(ngx.var.connections_active, {"active"})
-                    http_connections:set(ngx.var.connections_reading, {"reading"})
-                    http_connections:set(ngx.var.connections_waiting, {"waiting"})
-                    http_connections:set(ngx.var.connections_writing, {"writing"})
-                end
-                prometheus:collect()
+                context.prometheus_metrics:metrics()
             }
         }
     }
@@ -355,76 +315,6 @@ http {
             log_by_lua_block {
                 local app = context.app
                 app.log()
-                local function split(str)
-                    local array = {}
-                    for mem in string.gmatch(str, '([^, ]+)') do
-                        table.insert(array, mem)
-                    end
-                    return array
-                end
-                local function getWithIndex(str, idx)
-                    if str == nil then
-                        return nil
-                    end
-                    return split(str)[idx]
-                end
-                local host = ngx.var.host
-                local status = ngx.var.status
-                http_requests:inc(1, {host, status})
-                http_request_time:observe(ngx.now() - ngx.req.start_time(), {host})
-                http_request_bytes_sent:inc(tonumber(ngx.var.bytes_sent), {host})
-                if ngx.var.bytes_received ~= nil then
-                    http_request_bytes_received:inc(tonumber(ngx.var.bytes_received), {host})
-                end
-                local upstream_cache_status = ngx.var.upstream_cache_status
-                if upstream_cache_status ~= nil then
-                    http_upstream_cache_status:inc(1, {host, upstream_cache_status})
-                end
-                local upstream_addr = ngx.var.upstream_addr
-                if upstream_addr ~= nil then
-                    local addrs = split(upstream_addr)
-
-                    local upstream_status = ngx.var.upstream_status
-                    local upstream_response_time = ngx.var.upstream_response_time
-                    local upstream_connect_time = ngx.var.upstream_connect_time
-                    local upstream_first_byte_time = ngx.var.upstream_first_byte_time
-                    local upstream_header_time = ngx.var.upstream_header_time
-                    local upstream_session_time = ngx.var.upstream_session_time
-                    local upstream_bytes_received = ngx.var.upstream_bytes_received
-                    local upstream_bytes_sent = ngx.var.upstream_bytes_sent
-                    -- compatible for nginx commas format
-                    for idx, addr in ipairs(addrs) do
-                        if table.getn(addrs) > 1 then
-                            upstream_status = getWithIndex(ngx.var.upstream_status, idx)
-                            upstream_response_time = getWithIndex(ngx.var.upstream_response_time, idx)
-                            upstream_connect_time = getWithIndex(ngx.var.upstream_connect_time, idx)
-                            upstream_first_byte_time = getWithIndex(ngx.var.upstream_first_byte_time, idx)
-                            upstream_header_time = getWithIndex(ngx.var.upstream_header_time, idx)
-                            upstream_session_time = getWithIndex(ngx.var.upstream_session_time, idx)
-                            upstream_bytes_received = getWithIndex(ngx.var.upstream_bytes_received, idx)
-                            upstream_bytes_sent = getWithIndex(ngx.var.upstream_bytes_sent, idx)
-                        end
-                        http_upstream_requests:inc(1, {addr, upstream_status})
-                        http_upstream_response_time:observe(tonumber(upstream_response_time), {host, addr})
-                        http_upstream_header_time:observe(tonumber(upstream_header_time), {host, addr})
-                        -- ngx.config.nginx_version >= 1011004
-                        if upstream_first_byte_time ~= nil then
-                            http_upstream_first_byte_time:observe(tonumber(upstream_first_byte_time), {host, addr})
-                        end
-                        if upstream_connect_time ~= nil then
-                            http_upstream_connect_time:observe(tonumber(upstream_connect_time), {host, addr})
-                        end
-                        if upstream_session_time ~= nil then
-                            http_upstream_session_time:observe(tonumber(upstream_session_time), {host, addr})
-                        end
-                        if upstream_bytes_received ~= nil then
-                            http_upstream_bytes_received:inc(tonumber(upstream_bytes_received), {addr})
-                        end
-                        if upstream_bytes_sent ~= nil then
-                            http_upstream_bytes_sent:inc(tonumber(upstream_bytes_sent), {addr})
-                        end
-                    end
-                end
             }
         }
 
@@ -451,6 +341,6 @@ http {
         }
     }
 >end
->end
+
 }
 ]]
