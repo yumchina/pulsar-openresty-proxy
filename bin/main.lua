@@ -22,11 +22,12 @@ for k, v in pairs(cmds) do
 end
 
 local help = string.format([[
-%s v%s, Pulsar OpenResty Proxy. Designed by Jacobs From OrProxy team.
+Apache Pulsar Openresty Proxy v%s. Designed by JACOBS LEI & YumChina Team.
+Copyright @ 2019,2020. JACOBS LEI & YumChina.
 Usage: %s COMMAND [OPTIONS]
 The commands are:
  %s
-]], server_name,version, server_name,help_cmds)
+]], version, server_name,help_cmds)
 
 
 local function exec(args)

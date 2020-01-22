@@ -1,6 +1,6 @@
 --[[
- ProxyOR Gateway APPLICATION 主程序入口
- created by Jacobs Lei @2018-03-26
+ Pulsar-Openresty-Proxy APPLICATION 主程序入口
+ created by Jacobs Lei @2019-12-12
 --]]
 
 local pcall = pcall
@@ -134,12 +134,11 @@ function OrProxy.init(global_conf_path)
     local status, err = pcall(function()
     	-- 加载所有全局配置
         app_context.config = config_loader.load(global_conf_path)
-        if app_context.config.application_conf.service_type == "gateway_service" then
-            singletons.loaded_plugins = load_conf_plugin_handlers(app_context)
-        end
-
+        app_context.prometheus_metrics =  require("core.metrics.prometheus_utils")
+        app_context.prometheus_metrics:init()
         ngx.update_time()
         app_context.config.orProxy_start_at = ngx.localtime()
+        singletons.loaded_plugins = load_conf_plugin_handlers(app_context)
     end)
 
     if not status or err then
@@ -149,9 +148,10 @@ function OrProxy.init(global_conf_path)
     OrProxy.data = {
     	config = app_context.config,
         start_time = app_context.config.orProxy_start_at,
-        profile = app_context.config.profile
+        profile = app_context.config.profile,
+        prometheus_metrics = app_context.prometheus_metrics
 	}
-	return app_context.config
+	return app_context.config,app_context.prometheus_metrics
 end
 
 
@@ -258,6 +258,7 @@ function OrProxy.log()
     for _, plugin in ipairs(singletons.loaded_plugins) do
         plugin.handler:log()
     end
+    OrProxy.data.prometheus_metrics:log()
 end
 
 --[[
